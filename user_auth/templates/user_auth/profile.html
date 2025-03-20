@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>{{ user.username }}'s Profile</h1>
+    <h2>Your Reviews</h2>
+    {% for review in reviews %}
+        <p>{{ review.movie.title }}: {{ review.rating }}/5 - {{ review.comment }}</p>
+    {% endfor %}
+    <h2>Favorite Movies</h2>
+    {% for favorite in favorites %}
+        <p>{{ favorite.movie.title }}</p>
+    {% endfor %}
+</body>
+</html>

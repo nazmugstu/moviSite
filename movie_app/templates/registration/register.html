@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Register</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a> |
+            <a href="{% url 'login' %}">Login</a>
+        </nav>
+    </header>
+    <main>
+        <div class="register-container">
+            <h2>Create Your Account</h2>
+            <form method="POST" class="register-form">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="error-message">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    <small>150 characters or fewer. Letters, digits, and @/./+/-/_ only.</small>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {{ form.password1 }}
+                    <small>At least 8 characters, not too common or numeric.</small>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    {{ form.password2 }}
+                    <small>Enter the same password as above.</small>
+                </div>
+                <button type="submit" class="register-btn">Register</button>
+            </form>
+            <p class="login-link">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        </div>
+    </main>
+</body>
+</html>

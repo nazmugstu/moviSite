@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie List</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Movies</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a> |
+            <a href="{% url 'trending' %}">Trending</a> |
+            <a href="{% url 'calendar' %}">Calendar</a> |
+            <a href="{% url 'chatbot' %}">Chatbox</a> | <!-- পৃথক চ্যাটবট পেজের লিঙ্ক -->
+            {% if user.is_authenticated %}
+                <span>Welcome, {{ user.username }}!</span> |
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a> |
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </nav>
+        <form method="GET" action="{% url 'movie_list' %}">
+            <input type="text" name="q" placeholder="Search movies..." value="{{ query|default:'' }}">
+            <button type="submit">Search</button>
+            {% if selected_genre %}
+                <input type="hidden" name="genre" value="{{ selected_genre }}">
+            {% endif %}
+        </form>
+    </header>
+    <main>
+        <section class="genre-filter">
+            <h2>Filter by Genre</h2>
+            <ul>
+                <li><a href="{% url 'movie_list' %}" {% if not selected_genre %}class="active"{% endif %}>All</a></li>
+                {% for genre in genres %}
+                    <li>
+                        <a href="{% url 'movie_list' %}?genre={{ genre.id }}"
+                           {% if selected_genre == genre.id|stringformat:'s' %}class="active"{% endif %}>
+                            {{ genre.name }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section class="movie-list">
+            {% for movie in movies %}
+                <div class="movie-card">
+                    {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
+                    {% elif movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }} Poster">
+                    {% endif %}
+                    <h3>{{ movie.title }}</h3>
+                    <p><strong>Release Year:</strong> {{ movie.release_year }}</p>
+                    <p><strong>Genres:</strong> {% for genre in movie.genres.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                    <p><strong>Rating:</strong> {{ movie.imdb_rating|default:"N/A" }}</p>
+                    <p>{{ movie.description }}</p>
+                    <div class="movie-actions">
+                        <a href="{% url 'movie_detail' movie.id %}" class="view-details">View Details</a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'add_review' movie.id %}" class="add-review">Add Review</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>No movies available.</p>
+            {% endfor %}
+        </section>
+        <!-- পেজিনেশন -->
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}" class="page-link">Previous</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- ফ্লোটিং চ্যাটবক্স -->
+    <div class="chatbox">
+        <div class="chatbox-header">
+            <h4>Movie Chatbox</h4>
+            <button onclick="toggleChatbox()">−</button>
+        </div>
+        <div id="messages"></div>
+        <input type="text" id="message" placeholder="টাইপ করুন...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function sendMessage() {
+            const msg = document.getElementById('message').value;
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p>You: ${msg}</p>`;
+            fetch("{% url 'chatbot' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'message=' + encodeURIComponent(msg)
+            })
+            .then(response => response.json())
+            .then(data => {
+                messages.innerHTML += `<p>Bot: ${data.response}</p>`;
+                document.getElementById('message').value = '';
+                messages.scrollTop = messages.scrollHeight;
+            });
+        }
+
+        document.getElementById('message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function toggleChatbox() {
+            const chatbox = document.querySelector('.chatbox');
+            chatbox.classList.toggle('minimized');
+        }
+    </script>
+</body>
+</html>

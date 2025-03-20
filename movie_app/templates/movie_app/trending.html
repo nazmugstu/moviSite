@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Movies</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Trending Movies</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a> |
+            <a href="{% url 'calendar' %}">Calendar</a>
+        </nav>
+    </header>
+    <main>
+        <section class="trending">
+            {% for movie in movies %}
+                <div class="movie-card">
+                    {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
+                    {% elif movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }} Poster">
+                    {% endif %}
+                    <h3>{{ movie.title }}</h3>
+                    <p><strong>Popularity:</strong> {{ movie.popularity }}</p>
+                    <a href="{% url 'movie_detail' movie.id %}">Details</a>
+                </div>
+            {% empty %}
+                <p>No trending movies available.</p>
+            {% endfor %}
+        </section>
+        <div class="back-link-container">
+            <a href="{% url 'movie_list' %}">Back to Home</a>
+        </div>
+    </main>
+</body>
+</html>

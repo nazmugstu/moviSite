@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review - {{ movie.title }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Add Review for {{ movie.title }}</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a> |
+            <a href="{% url 'movie_detail' movie.id %}">Back to Movie</a>
+        </nav>
+    </header>
+    <main>
+        <section class="add-review">
+            <div class="review-form-box">
+                <h2>Write Your Review</h2>
+                <form method="POST" class="review-form">
+                    {% csrf_token %}
+                    <textarea name="comment" placeholder="Write your review here..." required class="review-textarea"></textarea>
+                    <input type="number" name="rating" min="1" max="10" step="1" placeholder="Rating (1-10)" required class="review-rating">
+                    <button type="submit" class="submit-review">Submit Review</button>
+                </form>
+                <a href="{% url 'movie_detail' movie.id %}" class="cancel-link">Cancel</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

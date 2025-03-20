@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Release Calendar</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Movie Release Calendar</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a> |
+            <a href="{% url 'trending' %}">Trending</a>
+        </nav>
+    </header>
+    <main>
+        <section class="calendar">
+            {% for movie in movies %}
+                <div class="calendar-item">
+                    <h3>{{ movie.title }}</h3>
+                    <p><strong>Release:</strong> {{ movie.release_year }}</p>
+                    <a href="{% url 'movie_detail' movie.id %}">View Details</a>
+                </div>
+            {% empty %}
+                <p>No movies scheduled.</p>
+            {% endfor %}
+        </section>
+        <!-- পেজিনেশন -->
+        <div class="pagination">
+            {% if movies.has_previous %}
+                <a href="?page={{ movies.previous_page_number }}" class="page-link">Previous</a>
+            {% endif %}
+            {% for num in movies.paginator.page_range %}
+                {% if movies.number == num %}
+                    <a href="?page={{ num }}" class="page-link active">{{ num }}</a>
+                {% else %}
+                    <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if movies.has_next %}
+                <a href="?page={{ movies.next_page_number }}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

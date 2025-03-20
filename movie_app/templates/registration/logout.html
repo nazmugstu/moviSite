@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Logout</h1>
+    </header>
+    <main>
+        <div class="logout-container">
+            <h2>Are you sure you want to log out?</h2>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="signout-btn">Sign Out</button>
+                <a href="/" class="cancel-btn">Cancel</a>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

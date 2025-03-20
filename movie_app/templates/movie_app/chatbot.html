@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbox - Movie Site</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Movie Site Chatbox</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a>
+            <a href="{% url 'trending' %}">Trending</a>
+            <a href="{% url 'calendar' %}">Calendar</a>
+        </nav>
+    </header>
+    <main>
+        <div class="fullpage-chatbox">
+            <div class="chatbox-header">
+                <h4>Movie Chatbox</h4>
+            </div>
+            <div id="messages" class="chatbox-messages"></div>
+            <div class="chatbox-input">
+                <input type="text" id="message" placeholder="টাইপ করুন...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+            <div id="loading" style="display: none;">Loading...</div>
+        </div>
+    </main>
+    <script>
+        function sendMessage() {
+            const msgInput = document.getElementById('message');
+            const msg = msgInput.value.trim();
+            const messages = document.getElementById('messages');
+            const loading = document.getElementById('loading');
+
+            // ফাঁকা মেসেজ চেক
+            if (!msg) return;
+
+            // ব্যবহারকারীর মেসেজ দেখানো
+            messages.innerHTML += `<p class="user-message">You: ${msg}</p>`;
+            loading.style.display = 'block'; // Loading দেখানো
+
+            fetch("{% url 'chatbot' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'message=' + encodeURIComponent(msg)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                messages.innerHTML += `<p class="bot-message">Bot: ${data.response}</p>`;
+                msgInput.value = ''; // ইনপুট ক্লিয়ার
+                messages.scrollTop = messages.scrollHeight; // স্ক্রল নিচে
+                loading.style.display = 'none'; // Loading লুকানো
+            })
+            .catch(error => {
+                messages.innerHTML += `<p class="error-message">Bot: দুঃখিত, কিছু সমস্যা হয়েছে।</p>`;
+                loading.style.display = 'none';
+                messages.scrollTop = messages.scrollHeight;
+            });
+        }
+
+        // Enter কী দিয়ে মেসেজ পাঠানো
+        document.getElementById('message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

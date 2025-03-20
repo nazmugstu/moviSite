@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'movie_app/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>{{ movie.title }}</h1>
+        <nav>
+            <a href="{% url 'movie_list' %}">Home</a> |
+            <a href="{% url 'trending' %}">Trending</a> |
+            <a href="{% url 'calendar' %}">Calendar</a>
+        </nav>
+    </header>
+    <main>
+        <section class="movie-detail">
+            <div class="poster-box">
+                {% if movie.poster %}
+                    <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="movie-poster">
+                {% elif movie.poster_url %}
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="movie-poster">
+                {% endif %}
+            </div>
+            <div class="info-box">
+                <h3>Description</h3>
+                <p class="description">{{ movie.description }}</p>
+            </div>
+            <div class="info-box">
+                <h3>Details</h3>
+                <p><strong>Genres:</strong> {% for genre in movie.genres.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                <p><strong>Rating:</strong> {{ movie.imdb_rating|default:"N/A" }}</p>
+            </div>
+            <div class="links-box">
+                <h3>Links</h3>
+                <div class="movie-links">
+                    <a href="{{ movie.download_link }}" class="download-link">Download</a>
+                    <a href="{{ movie.streaming_link }}" class="stream-link">Stream</a>
+                </div>
+            </div>
+            {% if movie.trailer_url %}
+                <div class="trailer-box">
+                    <h3>Trailer</h3>
+                    <div class="trailer">
+                        <iframe src="{{ movie.trailer_url }}" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="reviews-box">
+                <h2>Reviews</h2>
+                <div class="reviews">
+                    {% for review in movie.reviews.all %}
+                        <div class="review-item">
+                            <p><strong>{{ review.user.username }}</strong> ({{ review.rating }}/10): {{ review.comment }}</p>
+                        </div>
+                    {% empty %}
+                        <p>No reviews yet.</p>
+                    {% endfor %}
+                </div>
+                <p>Debug: {{ movie.reviews.all|length }} reviews found for Movie ID {{ movie.id }}</p>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="actions-box">
+                <h3>Actions</h3>
+                <div class="movie-actions">
+                    <a href="{% url 'add_review' movie.id %}" class="add-review">Add Review</a>
+                    {% if user in movie.favorites.all %}
+                        <span class="favorite-emoji">❤️</span>
+                        <a href="{% url 'remove_favorite' movie.id %}" class="remove-favorite">Remove from Favorites</a>
+                    {% else %}
+                        <a href="{% url 'add_to_favorite' movie.id %}" class="add-favorite">Add to Favorites</a>
+                    {% endif %}
+                </div>
+            </div>
+             {% endif %}
+            <div class="back-box">
+                <a href="{% url 'movie_list' %}" class="back-link">Back to List</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
