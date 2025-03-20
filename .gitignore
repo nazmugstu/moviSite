@@ -1,0 +1,12 @@
+# ভার্চুয়াল এনভায়রনমেন্ট
+env/
+
+# Django ফাইল
+*.pyc
+__pycache__/
+db.sqlite3
+staticfiles/
+media/
+
+# স্ট্যাটিক ফাইল
+static/
