@@ -1,0 +1,45 @@
+C:\Users\Nazmul\MovieSite\
+│
+├── manage.py              # Django প্রজেক্ট চালানোর প্রধান ফাইল
+├── db.sqlite3             # SQLite ডাটাবেস ফাইল (ডিফল্ট)
+│
+├── MovieSite/            # প্রজেক্ট কনফিগারেশন ফোল্ডার
+│   ├── __init__.py       # ফোল্ডারটিকে Python প্যাকেজ হিসেবে চিহ্নিত করে
+│   ├── asgi.py           # ASGI সার্ভার কনফিগারেশন
+│   ├── settings.py       # প্রজেক্টের সেটিংস (অ্যাপ, ডাটাবেস, API কী)
+│   ├── urls.py           # প্রজেক্ট-লেভেল URL রাউটিং
+│   └── wsgi.py           # WSGI সার্ভার কনফিগারেশন
+│
+├── movie_app/            # আপনার মুভি অ্যাপ ফোল্ডার
+│   ├── __init__.py       # ফোল্ডারটিকে Python প্যাকেজ হিসেবে চিহ্নিত করে
+│   ├── admin.py          # অ্যাডমিন প্যানেল কনফিগারেশন
+│   ├── apps.py           # অ্যাপ কনফিগারেশন
+│   ├── migrations/       # ডাটাবেস মাইগ্রেশন ফাইল
+│   │   ├── 0001_initial.py  # প্রথম মাইগ্রেশন (মডেল তৈরি)
+│   │   └── __init__.py
+│   ├── models.py         # ডাটাবেস মডেল (Movie, Genre, Review)
+│   ├── static/           # স্ট্যাটিক ফাইল (CSS, JS, ইমেজ)
+│   │   ├── movie_app/
+│   │       ├── css/
+│   │       │   └── styles.css  # চ্যাটবক্স এবং অন্যান্য স্টাইল
+│   │       ├── js/
+│   │       │   └── script.js   # চ্যাটবক্সের জন্য JavaScript
+│   │       └── images/         # ইমেজ ফাইল (যদি থাকে)
+│   ├── templates/        # HTML টেমপ্লেট
+│   │   ├── movie_app/
+│   │       ├── base.html       # বেস টেমপ্লেট (নেভিগেশন বার)
+│   │       ├── movie_list.html # হোম পেজ (মুভি লিস্ট)
+│   │       ├── movie_detail.html # মুভি ডিটেইল পেজ
+│   │       ├── chatbot.html    # ফুল-পেজ চ্যাটবট
+│   │       ├── trending.html   # ট্রেন্ডিং মুভি পেজ
+│   │       ├── calendar.html   # ক্যালেন্ডার পেজ
+│   │       └── add_review.html # রিভিউ যোগ করার ফর্ম
+│   ├── tests.py          # টেস্ট ফাইল (ঐচ্ছিক)
+│   ├── urls.py           # অ্যাপ-লেভেল URL রাউটিং
+│   └── views.py          # ভিউ ফাংশন (চ্যাটবট, মুভি লিস্ট)
+│
+├── staticfiles/          # collectstatic দিয়ে সংগৃহীত স্ট্যাটিক ফাইল
+│   ├── admin/            # Django অ্যাডমিনের স্ট্যাটিক ফাইল
+│   └── movie_app/        # আপনার অ্যাপের স্ট্যাটিক ফাইল
+│
+└── requirements.txt      # প্রজেক্টের ডিপেন্ডেন্সি (যেমন Django, requests)

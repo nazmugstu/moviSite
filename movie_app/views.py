@@ -103,20 +103,44 @@ def calendar(request):
     })
 
 
-from django.http import JsonResponse
-import requests
-from decouple import config
-from .models import Movie, Review  # Review এবং Movie মডেল ইমপোর্ট
-
 def chatbot(request):
     if request.method == "POST":
         message = request.POST.get('message', '').lower().strip()
         api_key = '2503232ad80d9e99f4e88d075d6ea8d8'  # তোমার কী
-        
-        # সাধারণ কথা
+
+        # ✅ শুভেচ্ছা বিনিময়
+        if any(word in message for word in ["হাই", "হ্যালো", "সুপ্রভাত", "সন্ধ্যা", "কেমন আছো", "কি খবর"]):
+            greetings_responses = [
+                "হ্যালো! 😊 আমি মুভি বট। কিভাবে সাহায্য করতে পারি?",
+                "সুপ্রভাত! আজ কোন মুভির খবর চাও?",
+                "হাই! আমি এখানে আছি, বলো কী জানতে চাও।",
+                "কি খবর বন্ধু? মুভির খোঁজে এসেছো?"
+            ]
+            import random
+            return JsonResponse({'response': random.choice(greetings_responses)})
+
+        # সাধারণ কথোপকথন
         if "তোমার নাম" in message:
             return JsonResponse({'response': "আমার নাম 'মুভি বট'। তুমি কী জানতে চাও?"})
         
+        if "তোমার কাজ" in message or "তুমি কী করতে পারো" in message:
+            return JsonResponse({'response': "আমি মুভি সম্পর্কিত তথ্য দিতে পারি, যেমন রেটিং, কাস্ট, রিভিউ, জনপ্রিয় মুভি, এবং আরও অনেক কিছু। জাস্ট প্রশ্ন করে দেখো!"})
+        
+        if "কে বানাইছে" in message or "তোমাকে কে বানিয়েছে" in message:
+            return JsonResponse({'response': "আমাকে বানাইছে নাজমুল ভাই! উনি Django দিয়ে বানাইছেন আমাকে। 😄"})
+        
+        if "হেল্প" in message or "help" in message:
+            return JsonResponse({'response': "তুমি আমাকে বলতে পারো:\n- 'জনপ্রিয় মুভি'\n- '2023 এর অ্যাকশন মুভি'\n- 'Inception এর রেটিং'\n- 'Avengers এর কাস্ট'\n- 'The Batman এর রিভিউ'\n- 'কমেডি মুভি' ইত্যাদি।"})
+        
+        if "ধন্যবাদ" in message or "thanks" in message:
+            return JsonResponse({'response': "স্বাগতম! আরও কিছু জানতে চাও?"})
+        
+        if "ডাউনলোড" in message:
+            return JsonResponse({'response': "দুঃখিত, আমি মুভি ডাউনলোড লিংক দিতে পারি না। তবে তুমি মুভির রেটিং, কাস্ট বা রিভিউ জানতে পারো!"})
+        
+        if "movie bot" in message or "মুভি বট" in message:
+            return JsonResponse({'response': "আমি 'মুভি বট' — মুভি বিষয়ক চ্যাটবট। আমি তোমাকে মুভি সম্পর্কিত নানা তথ্য দিতে পারি!"})
+
         # মুভি নাম বের করা
         def extract_movie_name(msg):
             if "'" in msg:
@@ -131,7 +155,7 @@ def chatbot(request):
 
         movie_name = extract_movie_name(message)
         search_url = f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie_name}"
-        
+
         try:
             # জনপ্রিয় মুভি
             if any(word in message for word in ["জনপ্রিয়", "জনপ্রিয়", "popular"]):
@@ -158,8 +182,8 @@ def chatbot(request):
                 data = response.json()
                 if data.get('results'):
                     movie = data['results'][0]
-                    return JsonResponse({'response': f"'{movie['title']}'-এর রেটিং: {movie['vote_average']}"})
-                
+                    return JsonResponse({'response': f"'{movie['title']}'-এর রেটিং: {movie['vote_average']}"} )
+            
             # কাস্ট
             elif "কাস্ট" in message or "cast" in message:
                 response = requests.get(search_url)
@@ -173,7 +197,7 @@ def chatbot(request):
                     cast = [actor['name'] for actor in cast_data['cast'][:3]]
                     return JsonResponse({'response': f"'{movie_name}'-এর কাস্ট: {', '.join(cast)}"})
             
-            # জেনার
+            # জেনার ভিত্তিক মুভি
             elif any(genre in message for genre in ["কমেডি", "অ্যাকশন", "হরর"]):
                 genre_map = {"কমেডি": 35, "অ্যাকশন": 28, "হরর": 27}
                 genre_id = next((gid for g, gid in genre_map.items() if g in message), None)
@@ -194,24 +218,24 @@ def chatbot(request):
                 if data.get('results'):
                     movie_data = data['results'][0]
                     movie_id = movie_data['id']
-                    # ডাটাবেসে মুভি খুঁজে রিভিউ দেখানো
                     try:
-                        movie = Movie.objects.get(id=movie_id)  # TMDb ID দিয়ে ম্যাচ করো
-                        reviews = movie.reviews.all()[:3]  # প্রথম ৩টি রিভিউ
+                        movie = Movie.objects.get(id=movie_id)  # TMDb ID দিয়ে ম্যাচ
+                        reviews = movie.reviews.all()[:3]
                         if reviews:
                             review_list = "\n".join([f"{r.user.username}: {r.comment} (রেটিং: {r.rating})" for r in reviews])
                             return JsonResponse({'response': f"'{movie_data['title']}'-এর রিভিউ:\n{review_list}"})
                         else:
-                            return JsonResponse({'response': f"'{movie_data['title']}'-এর কোনো রিভিউ নেই। TMDb থেকে সারাংশ: {movie_data['overview']}"})
+                            return JsonResponse({'response': f"'{movie_data['title']}'-এর কোনো রিভিউ নেই। TMDb থেকে সারাংশ: {movie_data['overview']}"} )
                     except Movie.DoesNotExist:
-                        return JsonResponse({'response': f"'{movie_data['title']}'-এর কোনো রিভিউ নেই। TMDb থেকে সারাংশ: {movie_data['overview']}"})
-            
+                        return JsonResponse({'response': f"'{movie_data['title']}'-এর কোনো রিভিউ নেই। TMDb থেকে সারাংশ: {movie_data['overview']}"} )
+
             return JsonResponse({'response': "দুঃখিত, বুঝতে পারিনি। মুভির নামটা ঠিক করে লেখো!"})
-        
+
         except requests.exceptions.RequestException as e:
             return JsonResponse({'response': "দুঃখিত, কিছু সমস্যা হয়েছে।"})
-    
+
     return render(request, 'movie_app/chatbot.html')
+
 
 
 def some_view(request):
