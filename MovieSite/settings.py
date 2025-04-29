@@ -8,7 +8,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'movi-web.onrender.com']
 
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -94,4 +93,3 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '<nazmul13>.pythonanywhere.com']
